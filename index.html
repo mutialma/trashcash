@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRASH2CASH - Sistem Manajemen Bank Sampah</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ===================== AUTH SCREENS ===================== -->
+  <div id="authScreen">
+    <!-- LOGIN -->
+    <div id="loginScreen" class="auth-wrapper">
+      <div class="auth-card">
+        <div class="auth-logo">
+        </div>
+        <h1 class="auth-title">
+          <img src="logo.png" alt="Logo"
+            style="width: 100px; height: auto; vertical-align: middle; margin-right: 10px;">Selamat Datang!
+        </h1>
+        <p class="auth-sub">Masuk ke sistem bank sampah digital Anda</p>
+        <div class="role-tabs">
+          <button class="role-tab active" onclick="setLoginRole('user')">👤 Nasabah</button>
+          <button class="role-tab" onclick="setLoginRole('admin')">🛡️ Admin</button>
+          <button class="role-tab" onclick="setLoginRole('pemasok')">🏪 Pemasok</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="loginEmail" placeholder="Masukkan email Anda">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="loginPassword" placeholder="Masukkan password">
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()">🔐 Masuk</button>
+        <div class="auth-switch" id="loginSwitch">
+          Belum punya akun? <a onclick="showScreen('registerScreen')">Daftar sekarang</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerScreen" class="auth-wrapper hidden">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <img src="logo.png" alt="Logo" style="width: 110px; height: auto;">
+        </div>
+        <h1 class="auth-title">Buat Akun Nasabah</h1>
+        <p class="auth-sub">Bergabung dan mulai kelola sampah Anda</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-control" id="regName" placeholder="Nama lengkap">
+          </div>
+          <div class="form-group">
+            <label class="form-label">No. Telepon</label>
+            <input type="text" class="form-control" id="regPhone" placeholder="08xxxxxxxxxx">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="regEmail" placeholder="email@contoh.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="regPass" placeholder="Min. 6 karakter">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alamat</label>
+            <input type="text" class="form-control" id="regAddress" placeholder="Alamat lengkap">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="doRegister()">✅ Daftar Sekarang</button>
+        <div class="auth-switch">
+          Sudah punya akun? <a onclick="showScreen('loginScreen')">Masuk di sini</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== APP ===================== -->
+  <div id="appScreen" class="hidden">
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="auth-logo">
+            <img src="logo.png" alt="Logo" style="width: 120px; height: auto;">
+          </div>
+          <small id="roleLabel">Dashboard</small>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar" id="sidebarAvatarText">U</div>
+            <div class="user-details">
+              <div class="user-name" id="sidebarUserName">User</div>
+              <div class="user-role" id="sidebarUserRole">Nasabah</div>
+            </div>
+          </div>
+          <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+      <!-- MAIN -->
+      <div class="main-content">
+        <header class="topbar">
+          <div class="flex items-center gap-2">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
+          </div>
+          <div class="topbar-right">
+            <div class="badge-notif" onclick="showToast('info','Notifikasi','Tidak ada notifikasi baru')">
+              🔔
+              <div class="badge-notif-dot hidden" id="notifDot"></div>
+            </div>
+            <span class="text-sm text-muted" id="topbarDate"></span>
+          </div>
+        </header>
+        <div class="page-content" id="pageContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Modal</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
